@@ -26,14 +26,14 @@ jobs:
     secrets: inherit
 
   base-app:
-    needs: [ base ]
+    needs: [base]
     strategy:
       matrix:
         platform:
-         - arch: "linux/amd64"
-           runner: "ubuntu-latest"
-         - arch: "linux/arm64"
-           runner: "ARM64"
+          - arch: "linux/amd64"
+            runner: "ubuntu-latest"
+          - arch: "linux/arm64"
+            runner: "ARM64"
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base-app"
@@ -43,33 +43,36 @@ jobs:
     secrets: inherit
 
   apps:
-    needs: [ base, base-app ]
+    needs: [base, base-app]
     strategy:
       matrix:
-        image:
-         - name: xorg
-         - name: pulseaudio
-         - name: udevd
-         - name: sunshine
-         - name: retroarch
-         - name: firefox
-         - name: steam
-         - name: pegasus
-         - name: lutris
-         - name: heroic-games-launcher
         platform:
-         - arch: "linux/amd64"
-           runner: "ubuntu-latest"
-         - arch: "linux/arm64"
-           runner: "ARM64"
-        #- { name: es-de,      platforms: "linux/amd64" }
+          - arch: "linux/amd64"
+            runner: "ubuntu-latest"
+            images:
+              [
+                xorg,
+                pulseaudio,
+                udevd,
+                sunshine,
+                retroarch,
+                firefox,
+                steam,
+                pegasus,
+                lutris,
+                heroic-games-launcher,
+              ]
+          - arch: "linux/arm64"
+            runner: "ARM64"
+            images: [firefox]
+          #- name: es-de
+          #  platforms: ["linux/amd64"]
       fail-fast: false
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
-      image_name: "${{ matrix.image.name }}"
+      image_name: "${{ matrix.plateform.images }}"
       base_image: "${{ needs.base.outputs.image_tag }}"
       base_app_image: "${{ needs.base-app.outputs.image_tag }}"
       platforms: "${{ matrix.platform.arch }}"
       runs-on: "${{ matrix.platform.runner }}"
     secrets: inherit
-
