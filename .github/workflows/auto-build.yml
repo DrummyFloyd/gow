@@ -27,10 +27,19 @@ jobs:
 
   base-app:
     needs: [ base ]
+    strategy:
+      matrix:
+        platform:
+         - arch: "linux/amd64"
+           runner: "ubuntu-latest"
+         - arch: "linux/arm64"
+           runner: "ARM64"
     uses: ./.github/workflows/docker-build-and-publish.yml
     with:
       image_name: "base-app"
       base_image: "${{ needs.base.outputs.image_tag }}"
+      platforms: "${{ matrix.platform.arch }}"
+      runs-on: "${{ matrix.platform.runner }}"
     secrets: inherit
 
   apps:
